@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports | FoodHub</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eef2ff, #dbeafe);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      width: 90%;
+      max-width: 950px;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #0d6efd;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .report-image {
+      width: 80px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+
+    .summary-box {
+      display: flex;
+      justify-content: space-around;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 25px;
+      font-weight: 600;
+      color: #0d6efd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .back-home-btn {
+      display: inline-block;
+      background-color: #0d6efd;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 10px 25px;
+      transition: 0.3s ease;
+      margin-top: 25px;
+    }
+
+    .back-home-btn:hover {
+      background-color: #084298;
+      transform: scale(1.05);
+    }
+
+    .clear-btn {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+
+    .clear-btn:hover {
+      background-color: #bb2d3b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Image at the top -->
+    <img src="{{ url_for('static', filename='sales_icon.png') }}" alt="Sales Icon" class="report-image">
+
+    <h1>📊 Sales Reports</h1>
+
+    <table>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Total (₹)</th>
+        <th>Date</th>
+      </tr>
+      {% for report in reports %}
+      <tr>
+        <td>{{ report[0] }}</td>
+        <td>{{ report[1] }}</td>
+        <td>{{ report[2] }}</td>
+        <td>{{ report[3] }}</td>
+        <td>{{ report[4] }}</td>
+        <td>{{ report[5] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="summary-box">
+      <div>Total Orders: {{ total_orders }}</div>
+      <div>Total Sales: ₹{{ total_sales }}</div>
+    </div>
+
+    <form method="POST" action="/clear_reports">
+      <button class="clear-btn" type="submit">🗑️ Clear All Reports</button>
+    </form>
+
+    <a href="/" class="back-home-btn">⬅ Back to Home</a>
+  </div>
+</body>
+</html>
+
+

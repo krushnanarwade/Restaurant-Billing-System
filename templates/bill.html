@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bill</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🧾 Customer Bill</h1>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+            </tr>
+            {% for i in items %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.qty }}</td>
+                <td>{{ i.price }}</td>
+                <td>{{ i.amount }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <div class="summary">
+            <p>Total: ₹{{ total }}</p>
+            <p>Tax (5%): ₹{{ tax|round(2) }}</p>
+            <h3>Grand Total: ₹{{ grand_total|round(2) }}</h3>
+        </div>
+        <a href="/">← Back to Home</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Management | FoodHub</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eef2ff, #dbeafe);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #0d6efd;
+      margin-bottom: 25px;
+    }
+
+    form {
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0b5ed7;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f8f9fa;
+    }
+
+    .delete-btn {
+      color: #dc3545;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .delete-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* ✅ Back to Home Button */
+    .back-home-btn {
+      display: inline-block;
+      background-color: #0d6efd;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 10px 25px;
+      transition: 0.3s ease;
+      margin-top: 25px;
+    }
+
+    .back-home-btn:hover {
+      background-color: #084298;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍴 Menu Management</h1>
+    <form method="POST" action="/add_item">
+      <input type="text" name="name" placeholder="Item Name" required>
+      <input type="number" step="0.01" name="price" placeholder="Price (₹)" required>
+      <button type="submit">Add Item</button>
+    </form>
+
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Item Name</th>
+        <th>Price (₹)</th>
+        <th>Action</th>
+      </tr>
+      {% for item in items %}
+      <tr>
+        <td>{{ item[0] }}</td>
+        <td>{{ item[1] }}</td>
+        <td>{{ item[2] }}</td>
+        <td><a href="/delete_item/{{ item[0] }}" class="delete-btn">Delete</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- ✅ Back to Home Button -->
+    <a href="/" class="back-home-btn">⬅ Back to Home</a>
+  </div>
+</body>
+</html>
