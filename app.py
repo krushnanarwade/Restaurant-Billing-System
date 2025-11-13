@@ -1,22 +1,19 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import os
 import datetime
 
-# -------------------------------------------------
-# Flask App Setup
-# -------------------------------------------------
 app = Flask(__name__)
 
 # -------------------------------------------------
-# Database Initialization
+# DATABASE INITIALIZATION
 # -------------------------------------------------
 def init_db():
     if not os.path.exists('database.db'):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        # Menu table
+        # Menu Table
         cursor.execute('''
             CREATE TABLE menu (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +22,18 @@ def init_db():
             )
         ''')
 
-        # Customers table
+        # Orders Table
+        cursor.execute('''
+            CREATE TABLE orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_name TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                total REAL NOT NULL,
+                date TEXT NOT NULL
+            )
+        ''')
+
+        # Customers Table
         cursor.execute('''
             CREATE TABLE customers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +42,7 @@ def init_db():
             )
         ''')
 
-        # Sales table
+        # Sales Table (reserved for later)
         cursor.execute('''
             CREATE TABLE sales (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,14 +59,14 @@ def init_db():
 init_db()
 
 # -------------------------------------------------
-# ROUTE 1 : Home Page
+# HOME PAGE
 # -------------------------------------------------
 @app.route('/')
 def home():
     return render_template('home.html')
 
 # -------------------------------------------------
-# ROUTE 2 : Menu Management
+# MENU MANAGEMENT
 # -------------------------------------------------
 @app.route('/menu')
 def menu_page():
@@ -90,7 +98,7 @@ def delete_item(item_id):
     return redirect('/menu')
 
 # -------------------------------------------------
-# ROUTE 3 : Order & Billing
+# ORDER MANAGEMENT
 # -------------------------------------------------
 @app.route('/order')
 def order_page():
@@ -98,49 +106,46 @@ def order_page():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM menu")
     items = cursor.fetchall()
+    cursor.execute("SELECT * FROM orders ORDER BY id DESC")
+    orders = cursor.fetchall()
     conn.close()
-    return render_template('order.html', items=items)
+    return render_template('order.html', items=items, orders=orders)
 
-@app.route('/generate_bill', methods=['POST'])
-def generate_bill():
+@app.route('/add_order', methods=['POST'])
+def add_order():
+    item_id = request.form['item_id']
+    qty = int(request.form['quantity'])
+
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM menu")
-    menu_items = cursor.fetchall()
+    cursor.execute("SELECT item_name, price FROM menu WHERE id=?", (item_id,))
+    item = cursor.fetchone()
+
+    if item:
+        item_name, price = item
+        total = price * qty
+        date = datetime.date.today().isoformat()
+
+        cursor.execute(
+            "INSERT INTO orders (item_name, quantity, total, date) VALUES (?, ?, ?, ?)",
+            (item_name, qty, total, date)
+        )
+        conn.commit()
+
     conn.close()
+    return redirect('/order')
 
-    ordered_items = []
-    total = 0
-
-    for item in menu_items:
-        qty = int(request.form.get(str(item[0]), 0))
-        if qty > 0:
-            amount = qty * item[2]
-            total += amount
-            ordered_items.append({
-                'name': item[1],
-                'price': item[2],
-                'qty': qty,
-                'amount': amount
-            })
-
-    tax = total * 0.05   # 5% tax
-    grand_total = total + tax
-
-    # Save sale record
+@app.route('/delete_order/<int:order_id>')
+def delete_order(order_id):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO sales (total, tax, grand_total, date) VALUES (?, ?, ?, ?)",
-        (total, tax, grand_total, datetime.date.today().isoformat())
-    )
+    cursor.execute("DELETE FROM orders WHERE id=?", (order_id,))
     conn.commit()
     conn.close()
-
-    return render_template('bill.html', items=ordered_items, total=total, tax=tax, grand_total=grand_total)
+    return redirect('/order')
 
 # -------------------------------------------------
-# ROUTE 4 : Customer Management
+# CUSTOMER MANAGEMENT
 # -------------------------------------------------
 @app.route('/customers')
 def customer_page():
@@ -172,28 +177,33 @@ def delete_customer(customer_id):
     return redirect('/customers')
 
 # -------------------------------------------------
-# ROUTE 5 : Reports (Improved Design)
+# REPORTS PAGE
 # -------------------------------------------------
 @app.route('/reports')
 def reports_page():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM sales ORDER BY date DESC")
-    sales = cursor.fetchall()
+    cursor.execute("SELECT * FROM orders ORDER BY date DESC")
+    orders = cursor.fetchall()
     conn.close()
 
-    total_sales = sum(row[3] for row in sales)
-    total_tax = sum(row[2] for row in sales)
+    total_sales = sum(row[3] for row in orders) if orders else 0
+    total_orders = len(orders)
 
-    return render_template(
-        'reports.html',
-        sales=sales,
-        total_sales=total_sales,
-        total_tax=total_tax
-    )
+    return render_template('reports.html', orders=orders, total_sales=total_sales, total_orders=total_orders)
+
+@app.route('/clear_reports', methods=['POST'])
+def clear_reports():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM orders")
+    conn.commit()
+    conn.close()
+    return redirect('/reports')
 
 # -------------------------------------------------
-# Run the App
+# RUN APP
 # -------------------------------------------------
 if __name__ == '__main__':
     app.run(debug=True)
+    

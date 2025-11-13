@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Management | FoodHub</title>
+  <title>Take Order | FoodHub</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
     body {
-      background: linear-gradient(135deg, #eef2ff, #dbeafe);
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
       font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
@@ -17,18 +17,18 @@
     }
 
     .container {
-      background: #fff;
+      background: white;
       width: 90%;
-      max-width: 900px;
-      border-radius: 20px;
+      max-width: 800px;
       padding: 40px;
+      border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
 
     h1 {
       color: #0d6efd;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     form {
@@ -101,43 +101,37 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧾 Order Management</h1>
+    <h1>🧾 Take Order</h1>
 
     <form method="POST" action="/add_order">
-      <select name="customer_id" required>
-        <option value="">Select Customer</option>
-        {% for cust in customers %}
-          <option value="{{ cust[0] }}">{{ cust[1] }}</option>
-        {% endfor %}
-      </select>
-
       <select name="item_id" required>
-        <option value="">Select Item</option>
+        <option value="">-- Select Item --</option>
         {% for item in items %}
-          <option value="{{ item[0] }}">{{ item[1] }} - ₹{{ item[2] }}</option>
+        <option value="{{ item[0] }}">{{ item[1] }} - ₹{{ item[2] }}</option>
         {% endfor %}
       </select>
 
-      <input type="number" name="quantity" placeholder="Qty" min="1" required>
+      <input type="number" name="quantity" placeholder="Quantity" min="1" required>
       <button type="submit">Place Order</button>
     </form>
 
+    <h2>Recent Orders</h2>
     <table>
       <tr>
         <th>ID</th>
-        <th>Customer</th>
         <th>Item</th>
         <th>Qty</th>
         <th>Total (₹)</th>
+        <th>Date</th>
         <th>Action</th>
       </tr>
       {% for order in orders %}
       <tr>
         <td>{{ order[0] }}</td>
-        <td>{{ order[1] }}</td>
         <td>{{ order[2] }}</td>
         <td>{{ order[3] }}</td>
         <td>{{ order[4] }}</td>
+        <td>{{ order[5] }}</td>
         <td><a href="/delete_order/{{ order[0] }}" class="delete-btn">Delete</a></td>
       </tr>
       {% endfor %}
@@ -147,4 +141,3 @@
   </div>
 </body>
 </html>
- 
