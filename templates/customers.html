@@ -3,56 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Customer Management | FoodHub</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
-    body {
-      background: linear-gradient(135deg, #eef2ff, #dbeafe);
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
     }
 
     .container {
-      background: #fff;
-      width: 90%;
-      max-width: 800px;
-      border-radius: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       padding: 40px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    h1 {
-      color: #0d6efd;
-      margin-bottom: 25px;
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 35px;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 20px;
     }
 
-    form {
-      margin-bottom: 30px;
+    .page-header h1 {
+      color: #333;
+      font-size: 32px;
+      margin: 0;
+      font-weight: 700;
     }
 
-    input, button {
-      padding: 10px 15px;
-      margin: 5px;
+    .back-home-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
     }
 
-    button {
-      background-color: #0d6efd;
+    .back-home-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+
+    .form-section {
+      background: linear-gradient(135deg, #f5f7ff 0%, #f0f0ff 100%);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border-left: 4px solid #667eea;
+    }
+
+    .form-section h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-size: 15px;
     }
 
-    button:hover {
-      background-color: #0b5ed7;
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
     }
 
     table {
@@ -61,72 +134,105 @@
       margin-top: 20px;
     }
 
-    th, td {
-      border: 1px solid #dee2e6;
-      padding: 10px;
+    table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    table td {
+      border-bottom: 1px solid #eee;
+      padding: 15px;
       text-align: center;
     }
 
-    th {
-      background-color: #f8f9fa;
+    table tr:hover {
+      background-color: #f9f9f9;
     }
 
     .delete-btn {
       color: #dc3545;
       text-decoration: none;
       font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s;
     }
 
     .delete-btn:hover {
+      color: #c82333;
       text-decoration: underline;
     }
 
-    .back-home-btn {
-      display: inline-block;
-      background-color: #0d6efd;
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      border-radius: 10px;
-      padding: 10px 25px;
-      transition: 0.3s ease;
-      margin-top: 25px;
+    .customers-section {
+      margin-top: 30px;
     }
 
-    .back-home-btn:hover {
-      background-color: #084298;
-      transform: scale(1.05);
+    .customers-section h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>👤 Customer Management</h1>
+    <div class="page-header">
+      <h1>👥 Customer Management</h1>
+      <a href="{{ url_for('admin_page') }}" class="back-home-btn">🏠 Back to Dashboard</a>
+    </div>
 
-    <form method="POST" action="/add_customer">
-      <input type="text" name="name" placeholder="Customer Name" required>
-      <input type="text" name="phone" placeholder="Phone Number" required>
-      <button type="submit">Add Customer</button>
-    </form>
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
 
-    <table>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>Action</th>
-      </tr>
-      {% for cust in customers %}
-      <tr>
-        <td>{{ cust[0] }}</td>
-        <td>{{ cust[1] }}</td>
-        <td>{{ cust[2] }}</td>
-        <td><a href="/delete_customer/{{ cust[0] }}" class="delete-btn">Delete</a></td>
-      </tr>
-      {% endfor %}
-    </table>
+    <div class="form-section">
+      <h3>➕ Add New Customer</h3>
+      <form method="POST" action="{{ url_for('add_customer') }}">
+        <div class="form-group">
+          <label for="name">Customer Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g., John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" id="phone" name="phone" placeholder="e.g., +91 98765 43210" required>
+        </div>
+        <button type="submit" class="btn-submit">✓ Add Customer</button>
+      </form>
+    </div>
 
-    <a href="/" class="back-home-btn">⬅ Back to Home</a>
+    <div class="customers-section">
+      <h3>📋 Customer Database ({{ customers|length }})</h3>
+      {% if customers %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cust in customers %}
+            <tr>
+              <td>#{{ cust['id'] }}</td>
+              <td>{{ cust['name'] }}</td>
+              <td>{{ cust['phone'] }}</td>
+              <td>
+                <a href="{{ url_for('delete_customer', customer_id=cust['id']) }}" class="delete-btn" onclick="return confirm('Delete this customer?')">🗑 Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align: center; padding: 30px; color: #999;">
+          <p>No customers yet. Add your first customer above! 👆</p>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </body>
 </html>

@@ -10,6 +10,23 @@ body {
   min-height: 100vh;
 }
 
+/* Improve container and button polish */
+.app-container, .container {
+  max-width: 980px;
+  margin: 24px auto;
+  padding: 28px;
+}
+
+.btn-custom, .btn, .back-home-btn, .btn-submit {
+  border-radius: 12px;
+}
+
+/* Slightly larger base font and line-height for readability */
+body, input, button, select, textarea {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 /* -------------------------------
    Headings
 ----------------------------------*/
