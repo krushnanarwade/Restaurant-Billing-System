@@ -3,35 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bill</title>
-        <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Bill | FoodHub</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .bill-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .bill-header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bill-header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .bill-header p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .bill-content {
+            margin-bottom: 30px;
+        }
+
+        .bill-section {
+            margin-bottom: 25px;
+        }
+
+        .bill-section-title {
+            color: #333;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            border-bottom: 1px solid #eee;
+            padding: 12px;
+            text-align: left;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f0ff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #667eea;
+            padding-top: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .summary-row label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-row value {
+            color: #666;
+        }
+
+        .summary-row.total value {
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 15px;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .bill-container {
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .button-group {
+                display: none;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        .bill-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .bill-info-item {
+            font-size: 14px;
+        }
+
+        .bill-info-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .bill-info-value {
+            color: #333;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🧾 Customer Bill</h1>
-        <table>
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Amount</th>
-            </tr>
-            {% for i in items %}
-            <tr>
-                <td>{{ i.name }}</td>
-                <td>{{ i.qty }}</td>
-                <td>{{ i.price }}</td>
-                <td>{{ i.amount }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        <div class="summary">
-            <p>Total: ₹{{ total }}</p>
-            <p>Tax (5%): ₹{{ tax|round(2) }}</p>
-            <h3>Grand Total: ₹{{ grand_total|round(2) }}</h3>
+    <div class="bill-container">
+        <div class="bill-header">
+            <h1>🧾 FoodHub Invoice</h1>
+            <p>Restaurant Billing System - Bill</p>
         </div>
-        <a href="{{ url_for('admin_page') }}">← Back to Home</a>
+
+        {% if orders %}
+            <div class="bill-content">
+                <!-- Bill Information -->
+                <div class="bill-info">
+                    <div class="bill-info-item">
+                        <div class="bill-info-label">📊 Total Orders</div>
+                        <div class="bill-info-value">{{ order_count }}</div>
+                    </div>
+                    <div class="bill-info-item">
+                        <div class="bill-info-label">📦 Total Items</div>
+                        <div class="bill-info-value">{{ total_items }}</div>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="bill-section">
+                    <div class="bill-section-title">📋 Order Details</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th style="text-align: center;">Qty</th>
+                                <th class="amount">Unit Price</th>
+                                <th class="amount">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order['item_name'] }}</td>
+                                <td style="text-align: center;">{{ order['quantity'] }}</td>
+                                <td class="amount">₹{{ (order['total'] / order['quantity']) | round(2) }}</td>
+                                <td class="amount">₹{{ order['total'] | round(2) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary -->
+                <div class="bill-section">
+                    <div class="summary-section">
+                        <div class="summary-row">
+                            <label>Subtotal:</label>
+                            <value>₹{{ subtotal }}</value>
+                        </div>
+                        <div class="summary-row">
+                            <label>Tax ({{ tax_rate }}):</label>
+                            <value>₹{{ tax }}</value>
+                        </div>
+                        <div class="summary-row total">
+                            <label>Grand Total:</label>
+                            <value>₹{{ grand_total }}</value>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #f0f0f0; color: #999; font-size: 13px;">
+                    <p>Thank you for your business! 🙏</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group no-print">
+                <button class="btn-print" onclick="window.print()">🖨️ Print Bill</button>
+                <a href="{{ url_for('reports_page') }}" class="btn-back">← Back to Reports</a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>📭 No orders to display in bill</p>
+                <p>Add some orders first to generate a bill.</p>
+                <a href="{{ url_for('order_page') }}" class="btn-back" style="margin-top: 20px;">← Create Orders</a>
+            </div>
+        {% endif %}
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

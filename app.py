@@ -502,6 +502,78 @@ def logout():
 @login_required
 def admin_page():
     return render_template('admin.html')
+
+# -------------------------------------------------
+# BILL GENERATION
+# -------------------------------------------------
+@app.route('/generate_bill')
+@login_required
+def generate_bill():
+    """Generate a bill from all orders"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get all orders
+        cursor.execute("SELECT id, item_name, quantity, total, date FROM orders ORDER BY date DESC")
+        orders = cursor.fetchall()
+        conn.close()
+        
+        # Calculate totals
+        subtotal = sum(order['total'] for order in orders) if orders else 0
+        tax_rate = 0.05  # 5% tax
+        tax = subtotal * tax_rate
+        grand_total = subtotal + tax
+        
+        # Bill details
+        bill_data = {
+            'orders': orders,
+            'subtotal': round(subtotal, 2),
+            'tax': round(tax, 2),
+            'tax_rate': f"{int(tax_rate * 100)}%",
+            'grand_total': round(grand_total, 2),
+            'total_items': sum(order['quantity'] for order in orders) if orders else 0,
+            'order_count': len(orders)
+        }
+        
+        return render_template('bill.html', **bill_data)
+    except Exception as e:
+        return render_template('reports.html', error="Failed to generate bill"), 500
+
+@app.route('/bill_print')
+@login_required
+def bill_print():
+    """Print-friendly bill page"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get all orders
+        cursor.execute("SELECT id, item_name, quantity, total, date FROM orders ORDER BY date DESC")
+        orders = cursor.fetchall()
+        conn.close()
+        
+        # Calculate totals
+        subtotal = sum(order['total'] for order in orders) if orders else 0
+        tax_rate = 0.05  # 5% tax
+        tax = subtotal * tax_rate
+        grand_total = subtotal + tax
+        
+        # Bill details
+        bill_data = {
+            'orders': orders,
+            'subtotal': round(subtotal, 2),
+            'tax': round(tax, 2),
+            'tax_rate': f"{int(tax_rate * 100)}%",
+            'grand_total': round(grand_total, 2),
+            'total_items': sum(order['quantity'] for order in orders) if orders else 0,
+            'order_count': len(orders)
+        }
+        
+        return render_template('bill_print.html', **bill_data)
+    except Exception as e:
+        return render_template('reports.html', error="Failed to generate bill"), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
 

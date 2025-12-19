@@ -207,7 +207,8 @@
     </div>
 
     {% if orders %}
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ url_for('generate_bill') }}" class="clear-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: inline-block; text-decoration: none; cursor: pointer;">📄 Generate Bill</a>
       <form method="POST" action="{{ url_for('clear_reports') }}" style="display: inline;">
         <button class="clear-btn" type="submit" onclick="return confirm('Are you sure? This will delete all orders!')">🗑️ Clear All Orders</button>
       </form>
