@@ -68,7 +68,7 @@ def validate_quantity(qty_str):
         return None, "Invalid quantity format"
 
 def validate_mobile_number(phone_str):
-    """Validate mobile number with support for multiple formats"""
+    """Validate mobile number - only 10 digits allowed"""
     if not phone_str or not isinstance(phone_str, str):
         return None, "Phone number cannot be empty"
     
@@ -81,28 +81,15 @@ def validate_mobile_number(phone_str):
     if not cleaned_phone.isdigit():
         return None, "Phone number should contain only digits (and optional formatting characters like +, -, spaces)"
     
-    # Support formats:
-    # Indian: 10 digits (9876543210), +91 10 digits (+919876543210)
-    # International: 7-15 digits (E.164 standard)
-    
     phone_length = len(cleaned_phone)
     
-    # Check for Indian format (with or without 91 country code)
-    if cleaned_phone.startswith("91") and phone_length == 12:
-        # Format: 919876543210 (valid)
-        pass
-    elif phone_length == 10 and cleaned_phone[0] in ["6", "7", "8", "9"]:
-        # Format: 9876543210 (valid - Indian mobile starts with 6-9)
-        pass
-    elif 7 <= phone_length <= 15:
-        # International format (E.164 allows 7-15 digits)
-        pass
-    else:
-        return None, "Phone number must be 10 digits (India) or 7-15 digits (International). Example: 9876543210 or +91 9876543210"
+    # Only allow exactly 10 digits
+    if phone_length != 10:
+        return None, "Phone number must be exactly 10 digits. Example: 9876543210"
     
-    # Final length check (after cleaning)
-    if len(phone) < 5 or len(phone) > 25:
-        return None, "Phone number length should be between 5 and 25 characters"
+    # Check if it starts with valid Indian mobile prefix (6-9)
+    if cleaned_phone[0] not in ["6", "7", "8", "9"]:
+        return None, "Phone number must start with 6, 7, 8, or 9"
     
     return phone, None
 
