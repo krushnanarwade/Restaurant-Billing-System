@@ -3,7 +3,7 @@
 ----------------------------------*/
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #fff8f0, #ffe4cc);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #ff8e72 100%);
   text-align: center;
   margin: 0;
   padding: 0;
