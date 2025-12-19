@@ -264,9 +264,15 @@
                     </div>
                     {% if customer %}
                     <div class="bill-info-item">
-                        <div class="bill-info-label">👤 Customer</div>
-                        <div class="bill-info-value">{{ customer['name'] }}{% if customer['phone'] %} • {{ customer['phone'] }}{% endif %}</div>
+                        <div class="bill-info-label">👤 Customer Name</div>
+                        <div class="bill-info-value">{{ customer['name'] or '-' }}</div>
                     </div>
+                    {% if customer['phone'] %}
+                    <div class="bill-info-item">
+                        <div class="bill-info-label">📱 Mobile</div>
+                        <div class="bill-info-value">{{ customer['phone'] }}</div>
+                    </div>
+                    {% endif %}
                     {% endif %}
                 </div>
 
