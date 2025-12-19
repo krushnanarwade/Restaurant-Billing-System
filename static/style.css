@@ -3,7 +3,7 @@
 ----------------------------------*/
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #eef2ff, #dbeafe);
+  background: linear-gradient(135deg, #fff8f0, #ffe4cc);
   text-align: center;
   margin: 0;
   padding: 0;
@@ -55,10 +55,10 @@ body, input, button, select, textarea {
    Headings
 ----------------------------------*/
 h1 {
-  color: #0d6efd;
+  color: #ff6b6b;
   font-size: 2.2rem;
   margin-top: 30px;
-  text-shadow: 1px 1px 2px rgba(13, 110, 253, 0.2);
+  text-shadow: 1px 1px 2px rgba(255, 107, 107, 0.2);
   animation: pulse-heading 2s ease-in-out infinite;
   position: relative;
 }
@@ -92,7 +92,7 @@ h1::after {
 ----------------------------------*/
 .nav a {
   text-decoration: none;
-  background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
   color: white;
   padding: 12px 25px;
   border-radius: 8px;
@@ -100,7 +100,7 @@ h1::after {
   display: inline-block;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -118,9 +118,9 @@ h1::after {
 }
 
 .nav a:hover {
-  background: linear-gradient(135deg, #084298 0%, #0a8fb9 100%);
+  background: linear-gradient(135deg, #d63031 0%, #e84c3d 100%);
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
 }
 
 .nav a:hover::before {
@@ -138,7 +138,9 @@ form {
   display: inline-block;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border-left: 4px solid #ff6b6b;
-  border-right: 4px solid #ffd93d;
+  border-right: 4px solid #ff6b6b;
+  border-top: 2px solid #ffd93d;
+  border-bottom: 2px solid #ffd93d;
   animation: form-slide 0.6s ease-out;
 }
 
@@ -157,13 +159,13 @@ input, button {
 }
 
 input:focus {
-  border-color: #ff6b6b;
-  box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+  border-color: #ffd93d;
+  box-shadow: 0 0 8px rgba(255, 217, 61, 0.4);
   outline: none;
 }
 
 button {
-  background: linear-gradient(135deg, #0d6efd 0%, #ff6b6b 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
   color: white;
   font-weight: 600;
   border: none;
@@ -182,9 +184,9 @@ button::before {
 }
 
 button:hover {
-  background: linear-gradient(135deg, #084298 0%, #d63031 100%);
+  background: linear-gradient(135deg, #d63031 0%, #ffb300 100%);
   transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
 }
 
 button:hover::before {
@@ -206,7 +208,7 @@ table {
 }
 
 th {
-  background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
   color: white;
   padding: 12px 20px;
   font-weight: 700;
@@ -229,7 +231,7 @@ tr:hover {
 ----------------------------------*/
 .back-home-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #0d6efd 0%, #ff6b6b 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
   color: white;
   text-decoration: none;
   font-weight: 600;
@@ -247,7 +249,7 @@ tr:hover {
 }
 
 .back-home-btn:hover {
-  background: linear-gradient(135deg, #084298 0%, #d63031 100%);
+  background: linear-gradient(135deg, #d63031 0%, #ffb300 100%);
   transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
 }
