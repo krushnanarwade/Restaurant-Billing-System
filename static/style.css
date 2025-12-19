@@ -243,11 +243,6 @@ tr:hover {
   overflow: hidden;
 }
 
-.back-home-btn::before {
-  content: "🏠";
-  margin-right: 8px;
-}
-
 .back-home-btn:hover {
   background: linear-gradient(135deg, #d63031 0%, #ffb300 100%);
   transform: scale(1.1) rotate(5deg);
