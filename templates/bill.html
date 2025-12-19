@@ -322,13 +322,43 @@
             <!-- Customer form + Action Buttons -->
             <div class="button-group no-print">
                 <form method="POST" action="{{ url_for('save_customer_and_print') }}" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center;">
-                    <input type="text" name="customer_name" placeholder="Customer name" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['name'] }}{% endif %}">
-                    <input type="text" name="customer_phone" placeholder="Mobile (10 digits)" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['phone'] }}{% endif %}">
+                    <select id="existing_customer" name="existing_customer_id" style="padding:10px; border-radius:6px; border:1px solid #ddd;">
+                        <option value="">— Select existing customer —</option>
+                        {% if customers %}
+                        {% for c in customers %}
+                        <option value="{{ c['id'] }}" data-name="{{ c['name']|e }}" data-phone="{{ c['phone']|e }}">{{ c['name'] }}{% if c['phone'] %} • {{ c['phone'] }}{% endif %}</option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                    <input type="text" id="customer_name" name="customer_name" placeholder="Customer name" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['name'] }}{% endif %}">
+                    <input type="text" id="customer_phone" name="customer_phone" placeholder="Mobile (10 digits)" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['phone'] }}{% endif %}">
                     <button type="submit" class="btn-print">💾 Save & Print</button>
                 </form>
                 <button class="btn-print" onclick="window.print()">🖨️ Print Bill</button>
                 <a href="{{ url_for('reports_page') }}" class="btn-back">← Back to Reports</a>
             </div>
+
+            <script>
+                // when an existing customer is selected, populate name and phone inputs
+                (function(){
+                    var sel = document.getElementById('existing_customer');
+                    if(!sel) return;
+                    sel.addEventListener('change', function(){
+                        var idx = sel.selectedIndex;
+                        var opt = sel.options[idx];
+                        var nameInput = document.getElementById('customer_name');
+                        var phoneInput = document.getElementById('customer_phone');
+                        if(opt && opt.value){
+                            nameInput.value = opt.getAttribute('data-name') || '';
+                            phoneInput.value = opt.getAttribute('data-phone') || '';
+                        } else {
+                            // clear if none selected
+                            nameInput.value = '';
+                            phoneInput.value = '';
+                        }
+                    });
+                })();
+            </script>
 
             {% if auto_print %}
             <script>

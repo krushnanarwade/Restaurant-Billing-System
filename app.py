@@ -504,6 +504,9 @@ def generate_bill():
         # Get all orders
         cursor.execute("SELECT id, item_name, quantity, total, date FROM orders ORDER BY date DESC")
         orders = cursor.fetchall()
+        # Get customers for bill dropdown
+        cursor.execute("SELECT id, name, phone FROM customers ORDER BY id DESC")
+        customers = cursor.fetchall()
         conn.close()
         
         # Calculate totals
@@ -522,6 +525,8 @@ def generate_bill():
             'total_items': sum(order['quantity'] for order in orders) if orders else 0,
             'order_count': len(orders)
         }
+        # include customers list for dropdown
+        bill_data['customers'] = customers
         
         return render_template('bill.html', **bill_data)
     except Exception as e:
@@ -532,37 +537,54 @@ def generate_bill():
 @login_required
 def save_customer_and_print():
     """Save customer info (if provided) and render bill with customer details and auto-print flag"""
+    # check if user selected an existing customer id
+    existing_id = request.form.get('existing_customer_id', '').strip()
     name = request.form.get('customer_name', '').strip()
     phone = request.form.get('customer_phone', '').strip()
 
     # Validate customer (optional: if both empty, don't create)
     customer = None
-    if name or phone:
-        # Validate name and phone if provided
-        if name:
-            name_valid, name_err = validate_name(name, 'Customer name', min_len=2, max_len=100)
-            if name_err:
-                return render_template('reports.html', error=name_err), 400
-        if phone:
-            phone_valid, phone_err = validate_mobile_number(phone)
-            if phone_err:
-                return render_template('reports.html', error=phone_err), 400
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # If an existing customer was selected, use it
+        if existing_id:
+            try:
+                cid = int(existing_id)
+                cursor.execute("SELECT id, name, phone FROM customers WHERE id=?", (cid,))
+                customer = cursor.fetchone()
+            except ValueError:
+                customer = None
+        else:
+            # Validate and try to find existing by phone
+            phone_valid = None
+            if phone:
+                phone_valid, phone_err = validate_mobile_number(phone)
+                if phone_err:
+                    conn.close()
+                    return render_template('reports.html', error=phone_err), 400
+                # search by exact phone match
+                cursor.execute("SELECT id, name, phone FROM customers WHERE phone=?", (phone_valid,))
+                customer = cursor.fetchone()
 
-        # Use cleaned values
-        name_to_save = name_valid if name else ''
-        phone_to_save = phone_valid if phone else ''
-
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?)", (name_to_save, phone_to_save))
-            conn.commit()
-            customer_id = cursor.lastrowid
-            cursor.execute("SELECT id, name, phone FROM customers WHERE id=?", (customer_id,))
-            customer = cursor.fetchone()
-            conn.close()
-        except Exception as e:
-            return render_template('reports.html', error="Failed to save customer"), 500
+            # If not found and we have a name/phone, create new customer
+            if not customer and (name or phone):
+                if name:
+                    name_valid, name_err = validate_name(name, 'Customer name', min_len=2, max_len=100)
+                    if name_err:
+                        conn.close()
+                        return render_template('reports.html', error=name_err), 400
+                else:
+                    name_valid = ''
+                phone_to_save = phone_valid if phone else ''
+                cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?)", (name_valid, phone_to_save))
+                conn.commit()
+                customer_id = cursor.lastrowid
+                cursor.execute("SELECT id, name, phone FROM customers WHERE id=?", (customer_id,))
+                customer = cursor.fetchone()
+        conn.close()
+    except Exception as e:
+        return render_template('reports.html', error="Failed to save or lookup customer"), 500
 
     # Now generate bill data (same as generate_bill)
     try:
@@ -570,6 +592,9 @@ def save_customer_and_print():
         cursor = conn.cursor()
         cursor.execute("SELECT id, item_name, quantity, total, date FROM orders ORDER BY date DESC")
         orders = cursor.fetchall()
+        # also get customers list
+        cursor.execute("SELECT id, name, phone FROM customers ORDER BY id DESC")
+        customers = cursor.fetchall()
         conn.close()
 
         subtotal = sum(order['total'] for order in orders) if orders else 0
@@ -588,6 +613,7 @@ def save_customer_and_print():
             'customer': customer,
             'auto_print': True
         }
+        bill_data['customers'] = customers
 
         return render_template('bill.html', **bill_data)
     except Exception as e:
