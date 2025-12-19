@@ -67,6 +67,99 @@ def validate_quantity(qty_str):
     except (ValueError, TypeError):
         return None, "Invalid quantity format"
 
+def validate_mobile_number(phone_str):
+    """Validate mobile number with support for multiple formats"""
+    if not phone_str or not isinstance(phone_str, str):
+        return None, "Phone number cannot be empty"
+    
+    phone = phone_str.strip()
+    
+    # Remove common formatting characters
+    cleaned_phone = phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "").replace("+", "")
+    
+    # Check if it contains only digits
+    if not cleaned_phone.isdigit():
+        return None, "Phone number should contain only digits (and optional formatting characters like +, -, spaces)"
+    
+    # Support formats:
+    # Indian: 10 digits (9876543210), +91 10 digits (+919876543210)
+    # International: 7-15 digits (E.164 standard)
+    
+    phone_length = len(cleaned_phone)
+    
+    # Check for Indian format (with or without 91 country code)
+    if cleaned_phone.startswith("91") and phone_length == 12:
+        # Format: 919876543210 (valid)
+        pass
+    elif phone_length == 10 and cleaned_phone[0] in ["6", "7", "8", "9"]:
+        # Format: 9876543210 (valid - Indian mobile starts with 6-9)
+        pass
+    elif 7 <= phone_length <= 15:
+        # International format (E.164 allows 7-15 digits)
+        pass
+    else:
+        return None, "Phone number must be 10 digits (India) or 7-15 digits (International). Example: 9876543210 or +91 9876543210"
+    
+    # Final length check (after cleaning)
+    if len(phone) < 5 or len(phone) > 25:
+        return None, "Phone number length should be between 5 and 25 characters"
+    
+    return phone, None
+
+def validate_email(email_str):
+    """Validate email address format"""
+    if not email_str or not isinstance(email_str, str):
+        return None, "Email cannot be empty"
+    
+    email = email_str.strip().lower()
+    
+    # Basic email validation regex
+    import re
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    
+    if not re.match(email_pattern, email):
+        return None, "Invalid email format. Example: user@example.com"
+    
+    if len(email) > 120:
+        return None, "Email too long (max 120 characters)"
+    
+    return email, None
+
+def validate_name(name_str, field_name="Name", min_len=2, max_len=100):
+    """Validate name field - only letters, spaces, and hyphens"""
+    if not name_str or not isinstance(name_str, str):
+        return None, f"{field_name} cannot be empty"
+    
+    name = name_str.strip()
+    
+    # Check length
+    if len(name) < min_len or len(name) > max_len:
+        return None, f"{field_name} must be between {min_len} and {max_len} characters"
+    
+    # Allow letters, spaces, hyphens, and apostrophes
+    import re
+    if not re.match(r"^[a-zA-Z\s'-]+$", name):
+        return None, f"{field_name} should contain only letters, spaces, hyphens, and apostrophes"
+    
+    return name, None
+
+def validate_item_name(item_str):
+    """Validate menu item name - letters, numbers, spaces, and common chars"""
+    if not item_str or not isinstance(item_str, str):
+        return None, "Item name cannot be empty"
+    
+    item = item_str.strip()
+    
+    if len(item) < 2 or len(item) > 50:
+        return None, "Item name must be between 2 and 50 characters"
+    
+    # Allow letters, numbers, spaces, hyphens, parentheses, and ampersand
+    import re
+    if not re.match(r"^[a-zA-Z0-9\s\-()&.,]+$", item):
+        return None, "Item name contains invalid characters. Allowed: letters, numbers, spaces, hyphens, parentheses, ampersand, dot, comma"
+    
+    return item, None
+
 # -------------------------------------------------
 # DATABASE INITIALIZATION
 # -------------------------------------------------
@@ -160,8 +253,8 @@ def add_item():
     name = request.form.get('name', '').strip()
     price_str = request.form.get('price', '').strip()
     
-    # Validate inputs
-    name, name_error = validate_input(name, 'Item name', min_len=2, max_len=50)
+    # Validate inputs with enhanced validators
+    name, name_error = validate_item_name(name)
     if name_error:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -290,8 +383,8 @@ def add_customer():
     name = request.form.get('name', '').strip()
     phone = request.form.get('phone', '').strip()
     
-    # Validate inputs
-    name, name_error = validate_input(name, 'Customer name', min_len=2, max_len=100)
+    # Validate inputs with enhanced validators
+    name, name_error = validate_name(name, 'Customer name', min_len=2, max_len=100)
     if name_error:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -300,7 +393,7 @@ def add_customer():
         conn.close()
         return render_template('customers.html', customers=customers, error=name_error), 400
     
-    phone, phone_error = validate_input(phone, 'Phone number', min_len=5, max_len=20)
+    phone, phone_error = validate_mobile_number(phone)
     if phone_error:
         conn = get_db_connection()
         cursor = conn.cursor()
