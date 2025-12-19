@@ -527,6 +527,72 @@ def generate_bill():
     except Exception as e:
         return render_template('reports.html', error="Failed to generate bill"), 500
 
+
+@app.route('/save_customer_and_print', methods=['POST'])
+@login_required
+def save_customer_and_print():
+    """Save customer info (if provided) and render bill with customer details and auto-print flag"""
+    name = request.form.get('customer_name', '').strip()
+    phone = request.form.get('customer_phone', '').strip()
+
+    # Validate customer (optional: if both empty, don't create)
+    customer = None
+    if name or phone:
+        # Validate name and phone if provided
+        if name:
+            name_valid, name_err = validate_name(name, 'Customer name', min_len=2, max_len=100)
+            if name_err:
+                return render_template('reports.html', error=name_err), 400
+        if phone:
+            phone_valid, phone_err = validate_mobile_number(phone)
+            if phone_err:
+                return render_template('reports.html', error=phone_err), 400
+
+        # Use cleaned values
+        name_to_save = name_valid if name else ''
+        phone_to_save = phone_valid if phone else ''
+
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?)", (name_to_save, phone_to_save))
+            conn.commit()
+            customer_id = cursor.lastrowid
+            cursor.execute("SELECT id, name, phone FROM customers WHERE id=?", (customer_id,))
+            customer = cursor.fetchone()
+            conn.close()
+        except Exception as e:
+            return render_template('reports.html', error="Failed to save customer"), 500
+
+    # Now generate bill data (same as generate_bill)
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, item_name, quantity, total, date FROM orders ORDER BY date DESC")
+        orders = cursor.fetchall()
+        conn.close()
+
+        subtotal = sum(order['total'] for order in orders) if orders else 0
+        tax_rate = 0.05
+        tax = subtotal * tax_rate
+        grand_total = subtotal + tax
+
+        bill_data = {
+            'orders': orders,
+            'subtotal': round(subtotal, 2),
+            'tax': round(tax, 2),
+            'tax_rate': f"{int(tax_rate * 100)}%",
+            'grand_total': round(grand_total, 2),
+            'total_items': sum(order['quantity'] for order in orders) if orders else 0,
+            'order_count': len(orders),
+            'customer': customer,
+            'auto_print': True
+        }
+
+        return render_template('bill.html', **bill_data)
+    except Exception as e:
+        return render_template('reports.html', error="Failed to generate bill"), 500
+
 @app.route('/bill_print')
 @login_required
 def bill_print():

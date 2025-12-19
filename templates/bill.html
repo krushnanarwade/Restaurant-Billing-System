@@ -262,6 +262,12 @@
                         <div class="bill-info-label">📦 Total Items</div>
                         <div class="bill-info-value">{{ total_items }}</div>
                     </div>
+                    {% if customer %}
+                    <div class="bill-info-item">
+                        <div class="bill-info-label">👤 Customer</div>
+                        <div class="bill-info-value">{{ customer['name'] }}{% if customer['phone'] %} • {{ customer['phone'] }}{% endif %}</div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Order Details -->
@@ -313,11 +319,25 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Customer form + Action Buttons -->
             <div class="button-group no-print">
+                <form method="POST" action="{{ url_for('save_customer_and_print') }}" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center;">
+                    <input type="text" name="customer_name" placeholder="Customer name" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['name'] }}{% endif %}">
+                    <input type="text" name="customer_phone" placeholder="Mobile (10 digits)" style="padding:10px; border-radius:6px; border:1px solid #ddd;" value="{% if customer %}{{ customer['phone'] }}{% endif %}">
+                    <button type="submit" class="btn-print">💾 Save & Print</button>
+                </form>
                 <button class="btn-print" onclick="window.print()">🖨️ Print Bill</button>
                 <a href="{{ url_for('reports_page') }}" class="btn-back">← Back to Reports</a>
             </div>
+
+            {% if auto_print %}
+            <script>
+                // auto trigger print when rendered after saving customer
+                window.addEventListener('load', function() {
+                    setTimeout(function(){ window.print(); }, 300);
+                });
+            </script>
+            {% endif %}
         {% else %}
             <div class="empty-state">
                 <p>📭 No orders to display in bill</p>
